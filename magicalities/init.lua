@@ -6,12 +6,12 @@ magicalities.modpath = modpath
 
 magicalities.elements = {
 	-- Base Elements
-	["water"] = {color = "#003cff", description = "Water", inheritance = nil, miny = -20000, maxy = -500, block_spawn = "default:stone", biomes = nil, rarity = 0.0002},
-	["earth"] = {color = "#00a213", description = "Earth", inheritance = nil, miny = -500, maxy = 0, block_spawn = "everness:moss_block", biomes = nil, rarity = 0.005},
-	["light"] = {color = "#ffffff", description = "Light", inheritance = nil, miny = 20000, maxy = 21000, block_spawn = "everness:crystal_leaves", biomes = nil, rarity = 0.001},
-	["fire"]  = {color = "#ff2424", description = "Fire",  inheritance = nil, miny = -31000, maxy = -2000, block_spawn = "everness:mineral_lava_stone", biomes = nil, rarity = 0.001},
-	["dark"]  = {color = "#232323", description = "Dark",  inheritance = nil, miny = 20000, maxy = 20500, block_spawn = "default:stone_with_coal", biomes = nil, rarity = 0.1},
-	["air"]   = {color = "#ffff00", description = "Air",   inheritance = nil, miny = -20000, maxy = 1000, block_spawn = "everness:sulfur_stone", biomes = nil, rarity= 0.01}, -- "everness:sulfur_stone"
+	["water"] = {color = "#003cff", description = "Water", inheritance = nil, miny = -20000, maxy = -20, block_spawn = {"default:sand", "default:stone"}, biomes = nil, rarity = 0.0002, spawn_by = "default:water_source"},
+	["earth"] = {color = "#00a213", description = "Earth", inheritance = nil, miny = -500, maxy = 0, block_spawn = "everness:moss_block", biomes = nil, rarity = 0.005, spawn_by = nil},
+	["light"] = {color = "#ffffff", description = "Light", inheritance = nil, miny = 20000, maxy = 21000, block_spawn = "everness:crystal_leaves", biomes = nil, rarity = 0.001, spawn_by = nil},
+	["fire"]  = {color = "#ff2424", description = "Fire",  inheritance = nil, miny = -31000, maxy = -2000, block_spawn = "everness:mineral_lava_stone", biomes = nil, rarity = 0.001, spawn_by = nil},
+	["dark"]  = {color = "#232323", description = "Dark",  inheritance = nil, miny = 20000, maxy = 20500, block_spawn = "default:stone_with_coal", biomes = nil, rarity = 0.1, spawn_by = nil},
+	["air"]   = {color = "#ffff00", description = "Air",   inheritance = nil, miny = -20000, maxy = 1000, block_spawn = "everness:sulfur_stone", biomes = nil, rarity= 0.01, spawn_by = nil} -- "everness:sulfur_stone"
 }
 
 -- Storage (complet)

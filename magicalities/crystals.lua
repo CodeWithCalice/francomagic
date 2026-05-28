@@ -149,7 +149,7 @@ local function crystal_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	return itemstack
 end
 
-function magicalities.register_crystal(element, description, color, miny, maxy, block_spawn, biomes, rarity)
+function magicalities.register_crystal(element, description, color, miny, maxy, block_spawn, biomes, rarity, spawn_by)
 	-- Fragment de cristal dropés lorsque l'on casse un cluster
 	core.register_craftitem("magicalities:crystal_"..element, {
 		description = description.." Crystal Shard",
@@ -240,7 +240,23 @@ function magicalities.register_crystal(element, description, color, miny, maxy, 
 		flags = "all_ceilings",
 		fill_ratio = rarity,
 		decoration = "magicalities:crystal_cluster_"..element,
-		biomes = biomes or nil
+		biomes = biomes or nil,
+		spawn_by = spawn_by or nil,
+		num_spawn_by = 8,
+	})
+
+	core.register_decoration({
+		deco_type = "simple",
+		place_on  = block_spawn,
+		sidelen   = 16,
+		y_max = maxy,
+		y_min = miny,
+		flags = "force_placement",
+		fill_ratio = rarity,
+		decoration = "magicalities:crystal_cluster_"..element,
+		biomes = biomes or nil,
+		spawn_by = spawn_by or nil,
+		num_spawn_by = 8,
 	})
 
 	core.register_decoration({
@@ -252,7 +268,9 @@ function magicalities.register_crystal(element, description, color, miny, maxy, 
 		flags = "all_floors",
 		fill_ratio = rarity,
 		decoration = "magicalities:crystal_cluster_"..element,
-		biomes = biomes or nil
+		biomes = biomes or nil,
+		spawn_by = spawn_by or nil,
+		num_spawn_by = 8,
 	})
 
 	core.register_craft({

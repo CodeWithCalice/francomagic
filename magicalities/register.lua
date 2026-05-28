@@ -6,7 +6,7 @@
 
 for name, data in pairs(magicalities.elements) do
 	if not data.inheritance then
-		magicalities.register_crystal(name, data.description, data.color, data.miny, data.maxy, data.block_spawn, data.biomes, data.rarity)
+		magicalities.register_crystal(name, data.description, data.color, data.miny, data.maxy, data.block_spawn, data.biomes, data.rarity, data.spawn_by)
 	end
 end
 
