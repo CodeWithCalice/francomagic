@@ -9,7 +9,6 @@ end
 local damage_protection = {}
 local block_metamorphosis = {}
 local jump_boost_players = {}
-local small_potion_effect = {}
 local big_potion_effect = {}
 local rat_potion_effect  = {}
 local growler_potion_effect  = {}
@@ -27,12 +26,6 @@ local function transform_block_to_normal(player)
         collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
         eye_height = 1.47,
     })
-end
-
--- Small to player
-local function transform_small_to_normal(player)
-    if not player or not player:is_player() then return end
-    entity_modifier.resize_player(player, 1)
 end
 
 -- Big to player
@@ -100,16 +93,14 @@ end
 local potions_name_effects = {
     "Elixir de Toph",
     "Elixir de Toph lvl 2",
-    "Potion de Lutin",
-    "Potion de Lutin lvl 2",
     "Potion de Geant",
     "Potion de Geant lvl 2",
-    "Elixir de Rat",
-    "Elixir de Rat lvl 2",
+    "Potion de Skaven",
+    "Potion de Skaven lvl 2",
     "Elixir a Viaire",
     "Elixir a Viaire lvl 2",
-    "Potion 2D",
-    "Potion 2D lvl 2"
+    "Potion de Dédé",
+    "Potion de Dédé lvl 2"
 }
 
 local function RemoveTransformationEffects(player)
@@ -119,8 +110,6 @@ local function RemoveTransformationEffects(player)
     })
     transform_block_to_normal(player)
     block_metamorphosis[player] = nil
-    transform_small_to_normal(player)
-    small_potion_effect[player] = nil
     transform_big_to_normal(player)
     big_potion_effect[player] = nil
     transform_rat_to_normal(player)
@@ -692,91 +681,6 @@ core.register_on_player_hpchange(function(player, hp_change, reason)
     return hp_change
 end, true)
 
-----------------
---Potion Small--
-----------------
-
--- Reduction de la taille
-local function transform_player_small(player)
-    if not player or not player:is_player() then return end
-    RemoveTransformationEffects(player)
-    entity_modifier.resize_player(player, 0.5)
-end
-
-
-
--- Application de la potion lvl 1
-local function small_potion_effect_lv1(user)
-    local name = user:get_player_name()
-    local itemstack = user:get_wielded_item()
-    if small_potion_effect[name] then
-        small_potion_effect[name].time_left = 30 -- rafraichit le timer si déjà actif
-        return itemstack
-    end
-
-    small_potion_effect[name] = {time_left = 30}
-    transform_player_small(user)
-    return itemstack
-end
-
--- Application de la potion lvl 2
-local function small_potion_effect_lv2(user)
-    local name = user:get_player_name()
-    local itemstack = user:get_wielded_item()
-    if small_potion_effect[name] then
-        small_potion_effect[name].time_left = 120 -- rafraichit le timer si déjà actif
-        return itemstack
-    end
-
-    small_potion_effect[name] = {time_left = 120}
-    transform_player_small(user)
-    return itemstack
-end
-
--- Gestion du timer restant
-local small_global_timer = 0
-core.register_globalstep(function(dtime)
-    small_global_timer = small_global_timer + dtime
-    if small_global_timer < 1 then return end
-    small_global_timer = 0
-
-    for player_name, effect in pairs(small_potion_effect) do
-        effect.time_left = effect.time_left - 1
-
-        if effect.time_left <= 0 then
-            local player = core.get_player_by_name(player_name)
-            if player then
-                transform_small_to_normal(player)
-            end
-            small_potion_effect[player_name] = nil
-        end
-    end
-end)
-
--- Nettoyage à la déconnexion
-core.register_on_leaveplayer(function(player)
-    local name = player:get_player_name()
-    if small_potion_effect[name] then
-        transform_small_to_normal(player)
-        small_potion_effect[name] = nil
-    end
-end)
-
-RegisterPotion(
-    "Potion de Lutin",
-    "Potion de Lutin lvl 2",
-    "Rapetisse l'utilisateur",
-    "Rapetisse l'utilisateur",
-    {"technic:tin_dust", "flowers:mushroom_red", "mobs:rat_cooked"},
-    "francomagicmod_potion_blue2.png",
-    small_potion_effect_lv1,
-    small_potion_effect_lv2,
-    3,
-    90,
-    30,
-    120
-)
-
 --------------
 --Potion Big--
 --------------
@@ -1031,8 +935,8 @@ end)
 
 if core.get_modpath("mobs_animal") then
     RegisterPotion(
-        "Elixir de Rat",
-        "Elixir de Rat lvl 2",
+        "Potion de Skaven",
+        "Potion de Skaven lvl 2",
         "Transforme l'utilisateur en rat",
         "Transforme l'utilisateur en rat",
         {"skullkingsitems:bone", "wool:white", "mobs:mutton_raw"},
@@ -1261,11 +1165,11 @@ core.register_on_leaveplayer(function(player)
 end)
 
 RegisterPotion(
-    "Potion 2D",
-    "Potion 2D lvl 2",
+    "Potion de Dédé",
+    "Potion de Dédé lvl 2",
     "Transforme l'utilisateur en 2D",
     "Transforme l'utilisateur en 2D",
-    {"default:coal", "butterflies:butterfly_white", "growler:growler_meat_raw"},
+    {"technic:tin_dust", "flowers:mushroom_red", "mobs:rat_cooked"},
     "francomagicmod_potion_white.png",
     DD_potion_effect_lv1,
     DD_potion_effect_lv2,
