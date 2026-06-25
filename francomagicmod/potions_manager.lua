@@ -2,7 +2,6 @@
 
 -- Création d'une classe qui stockera les potions ainsi que leur logique
 local Potions = {}
-local has_levelcraft_mod = minetest.get_modpath("levelcraft")
 
 Potions.__index = Potions
 function Potions:new()
@@ -14,13 +13,17 @@ end
 core.log("action", "[francomagicmod] Loaded potion manager.")
 potion_manager = Potions:new()
 player_magic_level = {}
-local active_potions = {}
+active_potions = {}
 local potion_huds = {}
 
 -- recup du niveau
 function get_level_witch(player_name)
-	if has_levelcraft_mod then
-		return levelcraft.get_level(player_name, "witch")
+    if type(player_name) ~= "string" and player_name:is_player() then
+        player_name = player_name:get_player_name()
+    end
+    local has_levelcraft_mod = minetest.get_modpath("levelcraft")
+	if has_levelcraft_mod ~= nil or has_levelcraft_mod ~= "" then
+		return tonumber(levelcraft.get_level(player_name, "witch"))
 	else
 		return 0
 	end
@@ -739,8 +742,7 @@ function Potions:register_potion(name, description, ingredients, texture, on_con
             local player_name = user:get_player_name()
 
             if type(on_consume) ~= "function" then
-                core.chat_send_player(player_name,
-                    "Erreur interne : potion mal configurée.")
+                core.log("warning", "Potion : " .. potion_item_name .. " mal configurée.")
                 return itemstack
             end
 

@@ -5,7 +5,7 @@ local book_data = dofile(core.get_modpath("magicalities").."/book_content.lua")
 
 -- Génération du formspec d'un chapitre
 local function generate_book_formspec(player, chapter_id)
-    local level = get_level_witch(player)
+    local level = get_level_witch(player:get_player_name())
     local chapter = book_data.chapters[chapter_id]
     if not chapter then return "" end
     local content_lines = {}

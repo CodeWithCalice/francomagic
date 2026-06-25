@@ -5,11 +5,145 @@ local function RegisterPotion(name, name2, description, description2, ingredient
     potion_manager:register_potion_2(name2, description2, texture, effect_func2, name, conversion_time2, effect_duration1)
 end
 
----------------------
---Damage Protection--
----------------------
-
+-- Global Tables
 local damage_protection = {}
+local block_metamorphosis = {}
+local jump_boost_players = {}
+local small_potion_effect = {}
+local big_potion_effect = {}
+local rat_potion_effect  = {}
+local growler_potion_effect  = {}
+local DD_potion_effect = {}
+
+-- Cancel Transformation Functions
+-- Block to player
+local function transform_block_to_normal(player)
+    if not player or not player:is_player() then return end
+
+    player:set_properties({
+        visual = "mesh",
+        mesh = (block_metamorphosis[player:get_player_name()] and block_metamorphosis[player:get_player_name()].mesh) or "character.b3d",
+        textures = {(block_metamorphosis[player:get_player_name()] and block_metamorphosis[player:get_player_name()].texture) or "character.png"},
+        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        eye_height = 1.47,
+    })
+end
+
+-- Small to player
+local function transform_small_to_normal(player)
+    if not player or not player:is_player() then return end
+    entity_modifier.resize_player(player, 1)
+end
+
+-- Big to player
+local function transform_big_to_normal(player)
+    if not player or not player:is_player() then return end
+    entity_modifier.resize_player(player, 1)
+end
+
+-- Rat to player
+local function transform_rat_to_normal(player)
+    if not player or not player:is_player() then return end
+
+    local mesh = nil
+    if core.get_modpath("3d_armor") then
+        mesh = "3d_armor_character.b3d"
+    end
+
+    player:set_properties({
+        visual = "mesh",
+        visual_size = {x = 1, y = 1},
+        mesh = mesh or "character.b3d",
+        textures = {"character.png"},
+        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        eye_height = 1.47,
+    })
+end
+
+-- Growler to player
+local function transform_growler_to_normal(player)
+    if not player or not player:is_player() then return end
+    local name = player:get_player_name()
+
+    player:set_properties({
+        visual = "mesh",
+        mesh = "character.b3d",
+        textures = {(growler_potion_effect[name] and growler_potion_effect[name].texture) or "character.png"},
+        collisionbox = (growler_potion_effect[name] and growler_potion_effect[name].collisionbox) or {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        eye_height = 1.47,
+    })
+    -- Enlever la vision nocturne
+    player:override_day_night_ratio(nil)
+
+    if growler_potion_effect[name] and growler_potion_effect[name].hud_filter then
+        player:hud_remove(growler_potion_effect[name].hud_filter)
+    end
+
+    local privs = core.get_player_privs(name)
+    privs.fly = false
+    core.set_player_privs(name, privs)
+end
+
+-- 2D to player
+local function transform_DD_to_normal(player)
+    if not player or not player:is_player() then return end
+    local name = player:get_player_name()
+
+    player:set_properties({
+        visual = "mesh",
+        mesh = "character.b3d",
+        collisionbox = (DD_potion_effect[name] and DD_potion_effect[name].collisionbox) or {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        eye_height = 1.47,
+    })
+end
+
+local potions_name_effects = {
+    "Elixir de Toph",
+    "Elixir de Toph lvl 2",
+    "Potion de Lutin",
+    "Potion de Lutin lvl 2",
+    "Potion de Geant",
+    "Potion de Geant lvl 2",
+    "Elixir de Rat",
+    "Elixir de Rat lvl 2",
+    "Elixir a Viaire",
+    "Elixir a Viaire lvl 2",
+    "Potion 2D",
+    "Potion 2D lvl 2"
+}
+
+local function RemoveTransformationEffects(player)
+    player:set_properties({
+        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        eye_height = 1.47,
+    })
+    transform_block_to_normal(player)
+    block_metamorphosis[player] = nil
+    transform_small_to_normal(player)
+    small_potion_effect[player] = nil
+    transform_big_to_normal(player)
+    big_potion_effect[player] = nil
+    transform_rat_to_normal(player)
+    rat_potion_effect[player] = nil
+    transform_growler_to_normal(player)
+    growler_potion_effect[player] = nil
+    transform_DD_to_normal(player)
+    DD_potion_effect[player] = nil
+    local pname = player:get_player_name()
+    if active_potions and active_potions[pname] then
+        for _, name in ipairs(potions_name_effects) do
+            if active_potions[pname][name] then
+                active_potions[pname][name] = nil
+            end
+        end
+    end
+end
+
+-- Other potions
+
+---------------------
+--Protection Potion--
+---------------------
 
 -- Update du timer de protection
 local timer = 0
@@ -109,11 +243,10 @@ RegisterPotion(
 --Block Metamorphosis--
 -----------------------
 
-local block_metamorphosis = {}
-
 -- Transformation en bloc
 local function transform_player_to_block(player)
     if not player or not player:is_player() then return end
+    RemoveTransformationEffects(player)
     local pos = player:get_pos()
     if not pos then return end
     local props = player:get_properties()
@@ -141,18 +274,7 @@ local function transform_player_to_block(player)
     -- Eviter les glitchs dans le sol
     player:set_pos({x = pos.x, y = pos.y + 1, z = pos.z})
 end
--- Retransformation vers le joueur normal
-local function transform_player_to_normal(player)
-    if not player or not player:is_player() then return end
 
-    player:set_properties({
-        visual = "mesh",
-        mesh = block_metamorphosis[player:get_player_name()].mesh or "character.b3d",
-        textures = {block_metamorphosis[player:get_player_name()].texture or "character.png"},
-        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
-        eye_height = 1.47,
-    })
-end
 -- Update du timer de la potion
 local meta_timer = 0
 core.register_globalstep(function(dtime)
@@ -166,7 +288,7 @@ core.register_globalstep(function(dtime)
         if effect.time_left <= 0 then
             local player = core.get_player_by_name(player_name)
             if player then
-                transform_player_to_normal(player)
+                transform_block_to_normal(player)
             end
             block_metamorphosis[player_name] = nil
         end
@@ -178,7 +300,7 @@ core.register_on_leaveplayer(function(player)
 
     local name = player:get_player_name()
     if block_metamorphosis[name] then
-        transform_player_to_normal(player)
+        transform_block_to_normal(player)
         block_metamorphosis[name] = nil
     end
 end)
@@ -472,7 +594,6 @@ RegisterPotion(
 --Potion de saut--
 ------------------
 
-local jump_boost_players = {}
 
 -- Application de l'effet de saut
 local function jump_boost_apply(level)
@@ -574,19 +695,15 @@ end, true)
 ----------------
 --Potion Small--
 ----------------
-local small_potion_effect = {}
 
 -- Reduction de la taille
 local function transform_player_small(player)
     if not player or not player:is_player() then return end
+    RemoveTransformationEffects(player)
     entity_modifier.resize_player(player, 0.5)
 end
 
--- Retour à la taille normale
-local function transform_player_normal(player)
-    if not player or not player:is_player() then return end
-    entity_modifier.resize_player(player, 1)
-end
+
 
 -- Application de la potion lvl 1
 local function small_potion_effect_lv1(user)
@@ -629,7 +746,7 @@ core.register_globalstep(function(dtime)
         if effect.time_left <= 0 then
             local player = core.get_player_by_name(player_name)
             if player then
-                transform_player_normal(player)
+                transform_small_to_normal(player)
             end
             small_potion_effect[player_name] = nil
         end
@@ -640,7 +757,7 @@ end)
 core.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
     if small_potion_effect[name] then
-        transform_player_normal(player)
+        transform_small_to_normal(player)
         small_potion_effect[name] = nil
     end
 end)
@@ -726,22 +843,16 @@ playereffects.register_effect_type(
     true
 )
 
-local big_potion_effect = {}
 
 -- Augmente la taille (10 blocs)
 local function transform_player_big(player, lvl)
     if not player or not player:is_player() then return end
+    RemoveTransformationEffects(player)
     if lvl == 1 then
         entity_modifier.resize_player(player, 2.9)
     elseif lvl == 2 then
         entity_modifier.resize_player(player, 5.8)
     end
-end
-
--- Retour à la taille normale
-local function transform_big_player_normal(player)
-    if not player or not player:is_player() then return end
-    entity_modifier.resize_player(player, 1)
 end
 
 -- Application de la potion lvl 1
@@ -779,7 +890,7 @@ core.register_globalstep(function(dtime)
         if effect.time_left <= 0 then
             local player = core.get_player_by_name(player_name)
             if player then
-                transform_big_player_normal(player)
+                transform_big_to_normal(player)
             end
             big_potion_effect[player_name] = nil
         end
@@ -790,7 +901,7 @@ end)
 core.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
     if big_potion_effect[name] then
-        transform_big_player_normal(player)
+        transform_big_to_normal(player)
         big_potion_effect[name] = nil
     end
 end)
@@ -814,96 +925,78 @@ RegisterPotion(
     120
 )
 
-------------------------
---Sheep Transformation--
-------------------------
+----------------------
+--Rat Transformation--
+----------------------
 
-local sheep_potion_effect  = {}
 
-local function transform_player_sheep(player)
+local function transform_player_rat(player)
     if not player or not player:is_player() then return end
+    RemoveTransformationEffects(player)
     local props = player:get_properties()
     if not props or not props.textures then return nil end
-    sheep_potion_effect[player:get_player_name()].collisionbox = props.collisionbox or {-0.45, 0, -0.45, 0.45,  1.7,  0.45}
-    sheep_potion_effect[player:get_player_name()].texture = props.textures[1] or "character.png"
+    rat_potion_effect[player:get_player_name()].collisionbox = props.collisionbox or {-0.45, 0, -0.45, 0.45,  1.7,  0.45}
+    rat_potion_effect[player:get_player_name()].texture = props.textures[1] or "character.png"
 
     player:set_properties({
         visual = "mesh",
         visual_size = {x = 1, y = 1},
-        mesh = "mobs_sheep.b3d",
-        textures = {"mobs_sheep_base.png^(mobs_sheep_wool.png^[multiply:#ffffc0)"},
-        collisionbox = {-0.3, -1, -0.4, 0.3, 0.3, 0.4},
-        eye_height = 0.2,
+        mesh = "mobs_rat.b3d",
+        textures = {"mobs_rat.png", "mobs_rat2.png", "mobs_rat3.png"},
+        collisionbox = {-0.2, -1, -0.2, 0.2, -0.8, 0.2},
+        eye_height = -0.6,
     })
     local pos = player:get_pos()
     pos.y = pos.y + 1
     player:set_pos(pos)
 end
 
-local function transform_sheep_player_normal(player)
-    if not player or not player:is_player() then return end
-
-    local mesh = nil
-    if core.get_modpath("3d_armor") then
-        mesh = "3d_armor_character.b3d"
-    end
-
-    player:set_properties({
-        visual = "mesh",
-        visual_size = {x = 1, y = 1},
-        mesh = mesh or "character.b3d",
-        textures = {"character.png"},
-        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
-        eye_height = 1.47,
-    })
-end
-
-local function sheep_potion_effect_lv1(user)
+local function rat_potion_effect_lv1(user)
     local name = user:get_player_name()
     local itemstack = user:get_wielded_item()
 
-    if sheep_potion_effect[name] then
-        sheep_potion_effect[name].time_left = 60
+    if rat_potion_effect[name] then
+        rat_potion_effect[name].time_left = 60
         return itemstack
     end
 
-    sheep_potion_effect[name] = {time_left = 60}
-    transform_player_sheep(user)
+    rat_potion_effect[name] = {time_left = 60}
+    transform_player_rat(user)
 
     core.chat_send_player(name, "Vous êtes transformé en mouton pendant 1 minute.")
     return itemstack
 end
 
-local function sheep_potion_effect_lv2(user)
+local function rat_potion_effect_lv2(user)
     local name = user:get_player_name()
     local itemstack = user:get_wielded_item()
 
-    if sheep_potion_effect[name] then
-        sheep_potion_effect[name].time_left = 180
+    if rat_potion_effect[name] then
+        rat_potion_effect[name].time_left = 180
         return itemstack
     end
 
-    sheep_potion_effect[name] = {time_left = 180}
-    transform_player_sheep(user)
+    rat_potion_effect[name] = {time_left = 180}
+    transform_player_rat(user)
 
     core.chat_send_player(name, "Vous êtes transformé en mouton pendant 3 minutes.")
     return itemstack
 end
 
-local sheep_global_timer = 0
+local rat_global_timer = 0
 core.register_globalstep(function(dtime)
-    sheep_global_timer = sheep_global_timer + dtime
-    if sheep_global_timer < 1 then return end
-    sheep_global_timer = 0
+    rat_global_timer = rat_global_timer + dtime
+    if rat_global_timer < 1 then return end
+    rat_global_timer = 0
 
-    for player_name, effect in pairs(sheep_potion_effect) do
+    for player_name, effect in pairs(rat_potion_effect) do
         effect.time_left = effect.time_left - 1
 
         if effect.time_left <= 0 then
             local player = core.get_player_by_name(player_name)
-            sheep_potion_effect[player_name] = nil
+            rat_potion_effect[player_name] = nil
             if player then
-                transform_sheep_player_normal(player)
+                transform_rat_to_normal(player)
                 core.after(0.1, function()
                     local p = core.get_player_by_name(player_name)
                     if not p then return end
@@ -915,7 +1008,7 @@ core.register_globalstep(function(dtime)
                         armor.textures[player_name].armor = "blank.png"
                         armor.textures[player_name].wielditem = "blank.png"
                     end
-                    if armor.set_player_armor then
+                    if armor and armor.set_player_armor then
                         armor:set_player_armor(p)
                     end
                 end)
@@ -927,9 +1020,9 @@ end)
 core.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
 
-    if sheep_potion_effect[name] then
-        sheep_potion_effect[name] = nil
-        transform_sheep_player_normal(player)
+    if rat_potion_effect[name] then
+        rat_potion_effect[name] = nil
+        transform_rat_to_normal(player)
         if armor and armor.update_player_visuals then
             armor:update_player_visuals(player)
         end
@@ -938,14 +1031,14 @@ end)
 
 if core.get_modpath("mobs_animal") then
     RegisterPotion(
-        "Elixir de Beeeeh",
-        "Elixir de Beeeeh lvl 2",
-        "Transforme l'utilisateur en mouton",
-        "Transforme l'utilisateur en mouton",
+        "Elixir de Rat",
+        "Elixir de Rat lvl 2",
+        "Transforme l'utilisateur en rat",
+        "Transforme l'utilisateur en rat",
         {"skullkingsitems:bone", "wool:white", "mobs:mutton_raw"},
         "francomagicmod_potion_gold.png",
-        sheep_potion_effect_lv1,
-        sheep_potion_effect_lv2,
+        rat_potion_effect_lv1,
+        rat_potion_effect_lv2,
         3,
         90,
         60,
@@ -956,7 +1049,7 @@ end
 local old_set_textures = player_api.set_textures
 player_api.set_textures = function(player, textures)
 	local name = player:get_player_name()
-	if sheep_potion_effect and sheep_potion_effect[name] then
+	if rat_potion_effect and rat_potion_effect[name] then
 		return
 	end
 	return old_set_textures(player, textures)
@@ -965,7 +1058,7 @@ end
 local old_set_texture = player_api.set_texture
 player_api.set_texture = function(player, index, texture)
 	local name = player:get_player_name()
-	if sheep_potion_effect and sheep_potion_effect[name] then
+	if rat_potion_effect and rat_potion_effect[name] then
 		return
 	end
 	return old_set_texture(player, index, texture)
@@ -975,12 +1068,12 @@ end
 --Growler Transformation--
 --------------------------
 
-local growler_potion_effect  = {}
 
 local function transform_player_growler(player)
     if not player or not player:is_player() then return end
+    RemoveTransformationEffects(player)
     local name = player:get_player_name()
-
+    growler_potion_effect[name] = growler_potion_effect[name] or {}
     growler_potion_effect[name].collisionbox = player:get_properties().collisionbox
     growler_potion_effect[name].texture = player:get_properties().texture
     growler_potion_effect[name].visual_size = player:get_properties().visual_size
@@ -1010,34 +1103,9 @@ local function transform_player_growler(player)
     core.set_player_privs(name, privs)
 end
 
-
-local function growler_transform_player_normal(player)
-    if not player or not player:is_player() then return end
-    local name = player:get_player_name()
-
-    player:set_properties({
-        visual = "mesh",
-        mesh = "character.b3d",
-        textures = {growler_potion_effect[name].texture or "character.png"},
-        collisionbox = growler_potion_effect[name].collisionbox or {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
-        eye_height = 1.47,
-    })
-    -- Enlever la vision nocturne
-    player:override_day_night_ratio(nil)
-
-    if growler_potion_effect[name].hud_filter then
-        player:hud_remove(growler_potion_effect[name].hud_filter)
-    end
-
-    local privs = core.get_player_privs(name)
-    privs.fly = false
-    core.set_player_privs(name, privs)
-end
-
 local function growler_potion_effect_lv1(user)
     local name = user:get_player_name()
     local itemstack = user:get_wielded_item()
-
     if growler_potion_effect[name] then
         growler_potion_effect[name].time_left = 60
         return itemstack
@@ -1053,7 +1121,6 @@ end
 local function growler_potion_effect_lv2(user)
     local name = user:get_player_name()
     local itemstack = user:get_wielded_item()
-
     if growler_potion_effect[name] then
         growler_potion_effect[name].time_left = 180
         return itemstack
@@ -1071,14 +1138,13 @@ core.register_globalstep(function(dtime)
     growler_global_timer = growler_global_timer + dtime
     if growler_global_timer < 1 then return end
     growler_global_timer = 0
-
     for player_name, effect in pairs(growler_potion_effect) do
         effect.time_left = effect.time_left - 1
 
         if effect.time_left <= 0 then
             local player = core.get_player_by_name(player_name)
             if player then
-                growler_transform_player_normal(player)
+                transform_growler_to_normal(player)
             end
             growler_potion_effect[player_name] = nil
         end
@@ -1089,7 +1155,7 @@ core.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
 
     if growler_potion_effect[name] then
-        growler_transform_player_normal(player)
+        transform_growler_to_normal(player)
         growler_potion_effect[name] = nil
     end
     -- Sécurité pour retirer le vol
@@ -1114,3 +1180,97 @@ if core.get_modpath("forgotten_monsters") then
         180
     )
 end
+
+---------------------
+--2D Transformation--
+---------------------
+
+local function transform_player_DD(player)
+    if not player or not player:is_player() then return end
+    RemoveTransformationEffects(player)
+    local name = player:get_player_name()
+
+    DD_potion_effect[name].collisionbox = player:get_properties().collisionbox
+    DD_potion_effect[name].visual_size = player:get_properties().visual_size
+
+    player:set_properties({
+        visual = "mesh",
+        mesh = "2D_player.obj",
+        collisionbox = {-0.1, 0, -0.1, 0.1, 1.2, 0.1},
+        eye_height = 1.7,
+    })
+end
+
+local function DD_potion_effect_lv1(user)
+    local name = user:get_player_name()
+    local itemstack = user:get_wielded_item()
+
+    if DD_potion_effect[name] then
+        DD_potion_effect[name].time_left = 60
+        return itemstack
+    end
+
+    DD_potion_effect[name] = {time_left = 60}
+    transform_player_DD(user)
+
+    core.chat_send_player(name, "Vous êtes en 2D pendant 1 minute.")
+    return itemstack
+end
+
+local function DD_potion_effect_lv2(user)
+    local name = user:get_player_name()
+    local itemstack = user:get_wielded_item()
+
+    if DD_potion_effect[name] then
+        DD_potion_effect[name].time_left = 180
+        return itemstack
+    end
+
+    DD_potion_effect[name] = {time_left = 180}
+    transform_player_DD(user)
+
+    core.chat_send_player(name, "Vous êtes en 2D pendant 3 minutes.")
+    return itemstack
+end
+
+local DD_global_timer = 0
+core.register_globalstep(function(dtime)
+    DD_global_timer = DD_global_timer + dtime
+    if DD_global_timer < 1 then return end
+    DD_global_timer = 0
+
+    for player_name, effect in pairs(DD_potion_effect) do
+        effect.time_left = effect.time_left - 1
+
+        if effect.time_left <= 0 then
+            local player = core.get_player_by_name(player_name)
+            if player then
+                transform_DD_to_normal(player)
+            end
+            DD_potion_effect[player_name] = nil
+        end
+    end
+end)
+
+core.register_on_leaveplayer(function(player)
+    local name = player:get_player_name()
+    if DD_potion_effect[name] then
+        transform_growler_to_normal(player)
+        DD_potion_effect[name] = nil
+    end
+end)
+
+RegisterPotion(
+    "Potion 2D",
+    "Potion 2D lvl 2",
+    "Transforme l'utilisateur en 2D",
+    "Transforme l'utilisateur en 2D",
+    {"default:coal", "butterflies:butterfly_white", "growler:growler_meat_raw"},
+    "francomagicmod_potion_white.png",
+    DD_potion_effect_lv1,
+    DD_potion_effect_lv2,
+    3,
+    90,
+    60,
+    180
+)

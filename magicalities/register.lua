@@ -43,6 +43,7 @@ magicalities.wands.register_wand("edulis", {
 --------------------------------
 
 local recipes = {
+	--[[ SUPPRESSION DES CRAFTS POUR NE LAISSER QUE LES FOCUS DANS LA TABLE DES ARCANES
 	{
 		input = {
 			{"technic:cast_iron_block", "", "technic:cast_iron_block"},
@@ -278,7 +279,7 @@ local recipes = {
 			["light"] = 80,
 		},
 		level_requirement = 7
-	},
+	},--]]
 	{
 		input = {
 			{"group:crystal", "moreores:mithril_ingot", "group:crystal"},
@@ -397,7 +398,7 @@ core.register_craft({
 	output = "magicalities:table",
 })
 
--- Supprimer le craft de la coquille de respiration sous-marine, car elle est maintenant craftable dans la table des arcanes
-core.clear_craft({
+-- Supprimer le craft de la coquille de respiration sous-marine, car elle est maintenant craftable dans la table des arcanes DESACTIVE POUR LE MOMENT
+--[[core.clear_craft({
     output = "everness:shell_of_underwater_breathing"
-})
+})--]]

@@ -22,18 +22,24 @@ core.register_node("magicalities:pentagram", {
 		if core.get_modpath("mobs") and core.get_modpath("mobs_animal") and core.get_modpath("mobs_monster") and core.get_modpath("forgotten_monsters") then
 			core.after(0.5, function()
 				if core.get_modpath("mobs_animal") and core.get_modpath("mobs_monster") then
-					local num = math.random(31)
-                    if num <= 12 then
-                        core.add_entity(pos, "mobs_monster:oerkki")
-					elseif num >= 13 and num <= 24 then
+					local num = math.random(100)
+                    if num <= 13 then
                         core.add_entity(pos, "mobs_animal:kitten")
-                    elseif num >= 25 and num <= 29 then
+					elseif num > 13 and num <= 38 then
+                        core.add_entity(pos, "mobs_monster:oerkki")
+                    elseif num > 38 and num <= 63 then
                         core.add_entity(pos, "forgotten_monsters:spectrum")
-					elseif num == 30 then
-                        core.add_entity(pos, "forgotten_monsters:sking")
-					elseif num == 31 then
+					elseif num > 63 and num <= 68 then
+                        core.add_entity(pos, "mobs_monster:lava_flan")
+					elseif num == 69 then
 						core.add_entity(pos, "mobs_balrog:balrog")
-                    end
+					elseif num == 70 then
+						core.add_entity(pos, "forgotten_monsters:sking")
+					elseif num > 70 and num <= 80 then
+						core.add_entity(pos, "mobs_monster:land_guard")
+					else
+						core.add_entity(pos, "mobs_monster:spider")
+					end
                 end
                 core.remove_node(pos)
 				core.add_particlespawner({
@@ -271,5 +277,14 @@ core.register_on_leaveplayer(function(player)
 	if flying_user[player:get_player_name()] then
 		revoke_fly(player)
 		flying_user[player:get_player_name()] = nil
+	end
+end)
+
+core.register_on_shutdown(function()
+	for pname, _ in pairs(flying_user) do
+		local player = core.get_player_by_name(pname)
+		if player then
+			revoke_fly(player)
+		end
 	end
 end)

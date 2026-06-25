@@ -139,6 +139,15 @@ core.register_craftitem("magicalities:focus_earth", {
 				core.set_node(above, {name = chose_plant()})
 			end
 		end
+		if core.get_item_group(node, "tree") > 0 then
+			if magicalities.wands.wand_has_contents(itemstack, {earth = 5}) then
+				itemstack = magicalities.wands.wand_take_contents(itemstack, {earth = 5})
+			else
+				return itemstack
+			end
+			mana.set(pname, mana.get(pname) - 5)
+			core.swap_node(pos, {name = "everness:hollow_tree"})
+		end
 		return itemstack
 	end
 })
