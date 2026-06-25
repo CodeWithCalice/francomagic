@@ -99,8 +99,8 @@ local potions_name_effects = {
     "Potion de Skaven lvl 2",
     "Elixir a Viaire",
     "Elixir a Viaire lvl 2",
-    "Potion de Dédé",
-    "Potion de Dédé lvl 2"
+    "Potion de Dede",
+    "Potion de Dede lvl 2"
 }
 
 local function RemoveTransformationEffects(player)
@@ -1165,8 +1165,8 @@ core.register_on_leaveplayer(function(player)
 end)
 
 RegisterPotion(
-    "Potion de Dédé",
-    "Potion de Dédé lvl 2",
+    "Potion de Dede",
+    "Potion de Dede lvl 2",
     "Transforme l'utilisateur en 2D",
     "Transforme l'utilisateur en 2D",
     {"technic:tin_dust", "flowers:mushroom_red", "mobs:rat_cooked"},
