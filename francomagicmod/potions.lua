@@ -940,7 +940,7 @@ if core.get_modpath("mobs_animal") then
         "Transforme l'utilisateur en rat",
         "Transforme l'utilisateur en rat",
         {"skullkingsitems:bone", "wool:white", "mobs:mutton_raw"},
-        "francomagicmod_potion_gold.png",
+        "francomagicmod_potion_blue2.png",
         rat_potion_effect_lv1,
         rat_potion_effect_lv2,
         3,
@@ -1165,12 +1165,12 @@ core.register_on_leaveplayer(function(player)
 end)
 
 RegisterPotion(
-    "Potion de Dede",
-    "Potion de Dede lvl 2",
+    "Elixir de Dede",
+    "Elixir de Dede lvl 2",
     "Transforme l'utilisateur en 2D",
     "Transforme l'utilisateur en 2D",
-    {"technic:tin_dust", "flowers:mushroom_red", "mobs:rat_cooked"},
-    "francomagicmod_potion_white.png",
+    {"farming:cutting_board", "default:paper", "magicalities:crystal_air"},
+    "francomagicmod_potion_gold.png",
     DD_potion_effect_lv1,
     DD_potion_effect_lv2,
     3,
