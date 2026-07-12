@@ -73,7 +73,7 @@ local function transform_growler_to_normal(player)
     end
 
     local privs = core.get_player_privs(name)
-    privs.fly = false
+    privs.fly = nil
     core.set_player_privs(name, privs)
 end
 
@@ -1064,7 +1064,7 @@ core.register_on_leaveplayer(function(player)
     end
     -- Sécurité pour retirer le vol
     local privs = core.get_player_privs(name)
-    privs.fly = false
+    privs.fly = nil
     core.set_player_privs(name, privs)
 end)
 
