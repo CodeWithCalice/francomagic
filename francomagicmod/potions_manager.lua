@@ -21,7 +21,7 @@ function get_level_witch(player_name)
     if type(player_name) ~= "string" and player_name:is_player() then
         player_name = player_name:get_player_name()
     end
-    local has_levelcraft_mod = minetest.get_modpath("levelcraft")
+    local has_levelcraft_mod = core.get_modpath("levelcraft")
 	if has_levelcraft_mod ~= nil or has_levelcraft_mod ~= "" then
 		return tonumber(levelcraft.get_level(player_name, "witch"))
 	else

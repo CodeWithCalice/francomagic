@@ -385,9 +385,18 @@ for _, recipe in pairs(recipes) do
 	magicalities.arcane.register_recipe(recipe)
 end
 
+-- Supprimer le craft de la coquille de respiration sous-marine, car elle est maintenant craftable dans la table des arcanes DESACTIVE POUR LE MOMENT
+--[[
+core.clear_craft({
+    output = "everness:shell_of_underwater_breathing"
+})
+--]]
+
 -----------------------
 -- Crafting basiques --
 -----------------------
+
+-- Liste des crafts dans la table de craft qui seront gérés par levelcraft
 
 core.register_craft({
 	recipe = {
@@ -398,7 +407,171 @@ core.register_craft({
 	output = "magicalities:table",
 })
 
--- Supprimer le craft de la coquille de respiration sous-marine, car elle est maintenant craftable dans la table des arcanes DESACTIVE POUR LE MOMENT
---[[core.clear_craft({
-    output = "everness:shell_of_underwater_breathing"
-})--]]
+-- Chaudron
+core.register_craft({
+    output = 'francomagicmod:cauldron',
+    recipe = {
+    {"technic:cast_iron_block", "", "technic:cast_iron_block"},
+    {"technic:cast_iron_block", "", "technic:cast_iron_block"},
+    {"technic:cast_iron_block", "moreores:mithril_block", "technic:cast_iron_block"},
+    }
+})
+
+-- Anneau élémentaire
+core.register_craft({
+    output = 'magicalities:element_ring',
+    recipe = {
+    {"default:goldblock", "magicalities:crystal_air", "default:goldblock"},
+    {"magicalities:crystal_water", "", "magicalities:crystal_earth"},
+    {"default:goldblock", "magicalities:crystal_fire", "default:goldblock"},
+    }
+})
+
+-- Bâton de Berhjay
+core.register_craft({
+    output = 'magicalities:berhjay_wand',
+    recipe = {
+    {"default:diamondblock", "everness:mese_tree", "default:diamondblock"},
+    {"everness:willow_tree", "magicalities:pin_wand", "everness:hollow_tree"},
+    {"default:diamondblock", "everness:lava_tree_with_lava", "default:diamondblock"},
+    }
+})
+
+-- Pentacle
+core.register_craft({
+    output = 'magicalities:pentagram',
+    recipe = {
+    {"magicalities:pentablock", "", "magicalities:pentablock"},
+    {"", "francomagicmod:potion_de_vie", ""},
+    {"magicalities:pentablock", "", "magicalities:pentablock"},
+    }
+})
+-- Alambic
+core.register_craft({
+    output = 'francomagicmod:alambic',
+    recipe = {
+    {"", "everness:pyrite_glass", ""},
+    {"default:bronzeblock", "basic_materials:heating_element", "default:bronzeblock"},
+    {"default:bronzeblock", "default:bronzeblock", "default:bronzeblock"},
+    }
+})
+
+-- Tronçonnache
+core.register_craft({
+    output = 'magicalities:tronconnache',
+    recipe = {
+    {"everness:vine_shears", "everness:vine_shears", "everness:vine_shears"},
+    {"basic_materials:motor", "default:diamondblock", "basic_materials:motor"},
+    {"moreores:axe_mithril", "moreores:axe_mithril", "moreores:axe_mithril"},
+    }
+})
+
+-- Shovel Silk
+core.register_craft({
+    output = 'everness:shovel_silk',
+    recipe = {
+	{"", "magicalities:crystal_block_earth", ""},
+	{"", "moreores:silver_block", ""},
+	{"", "moreores:silver_block", ""},
+	}
+})
+
+-- Lava Sword
+core.register_craft({
+    output = 'add_stuff:lava_sword',
+    recipe = {
+	{"", "", "mobs:lava_orb"},
+	{"", "mobs:lava_orb", ""},
+	{"default:obsidian_shard", "", ""},
+	}
+})
+
+-- Shell Of Underwater Breathing
+core.register_craft({
+    output = 'everness:shell_of_underwater_breathing',
+    recipe = {
+	{"xocean:brain_skeleton", "everness:cursed_lands_deep_ocean_coral_octocurse", "xocean:brain_skeleton"},
+	{"xocean:brain_skeleton", "magicalities:crystal_block_air", "xocean:brain_skeleton"},
+	{"xocean:brain_skeleton", "everness:cursed_lands_deep_ocean_coral_octocurse", "xocean:brain_skeleton"},
+	}
+})
+
+-- Primspick
+core.register_craft({
+    output = 'add_stuff:prismpick',
+    recipe = {
+	{"everness:cursed_dream_stone", "spectrum:spectrum_orb_block", "everness:coral_tree_bioluminescent"},
+	{"", "everness:pyriteblock", ""},
+	{"", "everness:pyriteblock", ""},
+	}
+})
+
+-- Edulis Wand
+core.register_craft({
+    output = 'magicalities:edulis_wand',
+    recipe = {
+	{"magicalities:crystal_block_light", "magicalities:crystal_block_air", "everness:crystal_tree_large_sapling"},
+	{"magicalities:crystal_block_water", "everness:crystal_tree_large_sapling", "magicalities:crystal_block_fire"},
+	{"everness:crystal_tree_large_sapling", "magicalities:crystal_block_earth", "magicalities:crystal_block_dark"},
+	}
+})
+
+-- Dragon Binder
+core.register_craft({
+    output = 'draconis:dragonbinder',
+    recipe = {
+	{"", "", "magicalities:crystal_block_dark"},
+	{"", "default:goldblock", "magicalities:crystal_block_dark"},
+	{"magicalities:crystal_block_dark", "magicalities:crystal_block_dark", ""},
+	}
+})
+
+-- Draconic Forge Fire
+core.register_craft({
+    output = 'draconis:draconic_forge_fire',
+    recipe = {
+	{"draconis:dragonstone_bricks_fire", "draconis:dragonstone_bricks_fire", "draconis:dragonstone_bricks_fire"},
+	{"draconis:dragonstone_bricks_fire", "default:furnace", "draconis:dragonstone_bricks_fire"},
+	{"draconis:dragonstone_bricks_fire", "draconis:dragonstone_bricks_fire", "draconis:dragonstone_bricks_fire"},
+	}
+})
+
+-- Inferior Ring
+core.register_craft({
+    output = 'magicalities:inferior_ring',
+    recipe = {
+	{"magicalities:crystal_cluster_light", "magicalities:crystal_cluster_air", "magicalities:crystal_cluster_light"},
+	{"magicalities:crystal_cluster_air", "", "magicalities:crystal_cluster_air"},
+	{"magicalities:crystal_cluster_light", "magicalities:crystal_cluster_air", "magicalities:crystal_cluster_light"},
+	}
+})
+
+-- Ordinary Ring
+core.register_craft({
+    output = 'magicalities:ordinary_ring',
+    recipe = {
+	{"default:gold_lump", "magicalities:inferior_ring", "default:gold_lump"},
+	{"magicalities:inferior_ring", "magicalities:inferior_ring", "magicalities:inferior_ring"},
+	{"default:gold_lump", "magicalities:inferior_ring", "default:gold_lump"},
+	}
+})
+
+-- Superior Ring
+core.register_craft({
+    output = 'magicalities:superior_ring',
+    recipe = {
+	{"default:diamond", "magicalities:ordinary_ring", "default:diamond"},
+	{"magicalities:ordinary_ring", "magicalities:ordinary_ring", "magicalities:ordinary_ring"},
+	{"default:diamond", "magicalities:ordinary_ring", "default:diamond"},
+	}
+})
+
+-- Supreme Ring
+core.register_craft({
+    output = 'magicalities:supreme_ring',
+    recipe = {
+	{"moreores:mithril_lump", "magicalities:superior_ring", "moreores:mithril_lump"},
+	{"magicalities:superior_ring", "magicalities:superior_ring", "magicalities:superior_ring"},
+	{"moreores:mithril_lump", "magicalities:superior_ring", "moreores:mithril_lump"},
+	}
+})
