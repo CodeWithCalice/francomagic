@@ -145,12 +145,26 @@ core.register_tool("magicalities:tronconnache", {
 -- Flying Rings
 local flying_user = {}
 
+local function is_nofly_zone(pos)
+    if pos then
+        local areashere = areas:getAreasAtPos(pos)
+        for _, area in pairs(areas_here) do
+            if area.flak  then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 local function check_fly(user)
 	local privs = core.get_player_privs(user:get_player_name())
 	return privs.fly == true
 end
 
 local function grant_fly(user)
+	local pos = user:get_pos()
+	if is_nofly_zone(pos) then return end
 	local pname = user:get_player_name()
 	local privs = core.get_player_privs(pname)
 	privs.fly = true
@@ -253,7 +267,10 @@ core.register_globalstep(function(dtime)
 		end
 		data.timer = data.timer + dtime
 		local actual_mana = mana.get(player:get_player_name())
-		if actual_mana <= 1 then
+		if flying_user[pname] and actual_mana >= 1 and not is_nofly_zone(player) then
+			grant_fly(player)
+		end
+		if actual_mana <= 1 or is_nofly_zone(player) then
 				revoke_fly(player)
 				return
 			end
