@@ -148,8 +148,8 @@ local flying_user = {}
 local function is_nofly_zone(pos)
     if pos then
         local areashere = areas:getAreasAtPos(pos)
-        for _, area in pairs(areas_here) do
-            if area.flak  then
+        for _, area in pairs(areashere) do
+            if area.flak then
                 return true
             end
         end
@@ -174,6 +174,10 @@ end
 local function revoke_fly(user)
 	local pname = user:get_player_name()
 	local privs = core.get_player_privs(pname)
+	if privs.permanentfly == true then
+		flying_user[pname] = nil
+		return
+	end
 	privs.fly = nil
 	core.set_player_privs(pname, privs)
 	flying_user[pname] = {no_fall_damage = true}

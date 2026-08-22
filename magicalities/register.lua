@@ -540,9 +540,9 @@ core.register_craft({
 core.register_craft({
     output = 'magicalities:inferior_ring',
     recipe = {
-	{"magicalities:crystal_cluster_light", "magicalities:crystal_cluster_air", "magicalities:crystal_cluster_light"},
-	{"magicalities:crystal_cluster_air", "", "magicalities:crystal_cluster_air"},
-	{"magicalities:crystal_cluster_light", "magicalities:crystal_cluster_air", "magicalities:crystal_cluster_light"},
+	{"moreores:silver_ingot", "technic:uranium35_ingot", "moreores:silver_ingot"},
+	{"moreores:silver_ingot", "", "moreores:silver_ingot"},
+	{"moreores:silver_ingot", "moreores:silver_ingot", "moreores:silver_ingot"},
 	}
 })
 
