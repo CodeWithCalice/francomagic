@@ -315,7 +315,7 @@ local recipes = {
 		},
 		output = "magicalities:focus_earth",
 		requirements = {
-			["earth"] = 50,
+			["earth"] = 25,
 		},
 		level_requirement = 4
 	},
