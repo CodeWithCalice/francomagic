@@ -685,6 +685,8 @@ end, true)
 --Potion Big--
 --------------
 
+local big_damage_players = {}
+
 local function jump_big_apply(level)
     return function(player)
         local phys = player:get_physics_override()
@@ -697,13 +699,19 @@ local function jump_big_apply(level)
             jump_value = 2.4 -- niveau 2 = ~5 blocs
         end
 
+        local speed_value = 1.7 -- niveau 1
+        if level == 2 then
+            speed_value = 2.4 -- niveau 2
+        end
+
         player:set_physics_override({
-            speed = original_speed,
+            speed = speed_value,
             jump = jump_value,
             gravity = original_gravity
         })
 
         jump_boost_players[player:get_player_name()] = true
+        big_damage_players[player:get_player_name()] = 2
 
         return {
             original_speed = original_speed,
@@ -722,6 +730,7 @@ local function jump_big_cancel(effect, player)
             gravity = effect.metadata.original_gravity or 1
         })
     end
+    big_damage_players[player:get_player_name()] = nil
     jump_boost_players[player:get_player_name()] = nil
 end
 
@@ -809,6 +818,33 @@ core.register_on_leaveplayer(function(player)
         big_potion_effect[name] = nil
     end
 end)
+
+core.register_on_player_hpchange(
+    function(player, hp_change, reason)
+        if hp_change >= 0 then
+            return hp_change
+        end
+
+        if reason.type ~= "punch" then
+            return hp_change
+        end
+
+        local attacker = reason.object
+
+        if not attacker or not attacker:is_player() then
+            return hp_change
+        end
+
+        local attacker_name = attacker:get_player_name()
+        local multiplier = big_damage_players[attacker_name]
+
+        if not multiplier then
+            return hp_change
+        end
+
+        return hp_change * multiplier
+    end,
+true)
 
 core.register_on_joinplayer(function(player)
     playereffects.cancel_effect_group("jump", player:get_player_name())
