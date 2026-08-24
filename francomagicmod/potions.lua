@@ -806,6 +806,7 @@ core.register_globalstep(function(dtime)
                 transform_big_to_normal(player)
             end
             big_potion_effect[player_name] = nil
+            big_damage_players[player_name] = nil
         end
     end
 end)
@@ -816,6 +817,7 @@ core.register_on_leaveplayer(function(player)
     if big_potion_effect[name] then
         transform_big_to_normal(player)
         big_potion_effect[name] = nil
+        big_damage_players[name] = nil
     end
 end)
 
@@ -851,10 +853,10 @@ core.register_on_joinplayer(function(player)
 end)
 
 RegisterPotion(
-    "Potion de Geant",
-    "Potion de Geant lvl 2",
-    "Aggrandit l'utilisateur",
-    "Aggrandit l'utilisateur",
+    "Popo d Uskull",
+    "Popo d Uskull lvl 2",
+    "Boost l'utilisateur",
+    "Boost l'utilisateur",
     {"default:tinblock", "farming:cookie", "mobs_add:elephantcorpse"},
     "francomagicmod_potion_brown.png",
     big_potion_effect_lv1,
