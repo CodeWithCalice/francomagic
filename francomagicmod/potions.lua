@@ -15,6 +15,7 @@ local growler_potion_effect  = {}
 local DD_potion_effect = {}
 
 -- Cancel Transformation Functions
+
 -- Block to player
 local function transform_block_to_normal(player)
     if not player or not player:is_player() then return end
@@ -704,6 +705,16 @@ local function jump_big_apply(level)
             speed_value = 2.4 -- niveau 2
         end
 
+        RemoveTransformationEffects(player)
+        player:set_properties({
+            visual = "mesh",
+            visual_size = {x = 15, y = 15},
+            mesh = "skull_king.b3d",
+            textures = {"francomagicmod_skull_King_hammer.png"},
+            collisionbox = {-0.5, -0, -0.5, 0.5, 3, 0.5},
+            eye_height = 2,
+        })
+
         player:set_physics_override({
             speed = speed_value,
             jump = jump_value,
@@ -723,6 +734,22 @@ end
 
 -- Annulation de l'effet de saut
 local function jump_big_cancel(effect, player)
+    if not player or not player:is_player() then return end
+
+    local mesh = nil
+    if core.get_modpath("3d_armor") then
+        mesh = "3d_armor_character.b3d"
+    end
+
+    player:set_properties({
+        visual = "mesh",
+        visual_size = {x = 1, y = 1},
+        mesh = mesh or "character.b3d",
+        textures = {"character.png"},
+        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        eye_height = 1.47,
+    })
+
     if effect.metadata then
         player:set_physics_override({
             speed = effect.metadata.original_speed or 1,
@@ -857,7 +884,7 @@ RegisterPotion(
     "Popo d Uskull lvl 2",
     "Boost l'utilisateur",
     "Boost l'utilisateur",
-    {"default:tinblock", "farming:cookie", "mobs_add:elephantcorpse"},
+    {"everness:hammer", "farming:cookie", "mobs_add:elephantcorpse"},
     "francomagicmod_potion_brown.png",
     big_potion_effect_lv1,
     big_potion_effect_lv2,
@@ -977,7 +1004,7 @@ if core.get_modpath("mobs_animal") then
         "Potion de Skaven lvl 2",
         "Transforme l'utilisateur en rat",
         "Transforme l'utilisateur en rat",
-        {"skullkingsitems:bone", "wool:white", "mobs:mutton_raw"},
+        {"technic:tin_dust", "flowers:mushroom_red", "mobs:rat_cooked"},
         "francomagicmod_potion_blue2.png",
         rat_potion_effect_lv1,
         rat_potion_effect_lv2,
@@ -1099,11 +1126,10 @@ core.register_on_leaveplayer(function(player)
     if growler_potion_effect[name] then
         transform_growler_to_normal(player)
         growler_potion_effect[name] = nil
+        local privs = core.get_player_privs(name)
+        privs.fly = nil
+        core.set_player_privs(name, privs)
     end
-    -- Sécurité pour retirer le vol
-    local privs = core.get_player_privs(name)
-    privs.fly = nil
-    core.set_player_privs(name, privs)
 end)
 
 if core.get_modpath("forgotten_monsters") then

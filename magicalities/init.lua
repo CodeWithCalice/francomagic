@@ -40,3 +40,9 @@ dofile(modpath.."/register.lua")
 
 -- Items (complet)
 dofile(modpath.."/items.lua")
+
+-- Enchanting (A COMPLETER)
+dofile(modpath.."/enchanting.lua")
+
+-- Enchanted Tools (A COMPLETER)
+dofile(modpath.."/enchanted_tools.lua")
