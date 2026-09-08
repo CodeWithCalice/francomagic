@@ -54,7 +54,7 @@ xdecor.register_enchantable_tool("everness:shovel_silk", {
 	dig_group = tooltypes[3][3],
 })
 
-xdecor.register_enchantable_tool("forgotten_monsters_add:hammer", {
+xdecor.register_enchantable_tool("forgotten_monsters:hammer", {
 	enchants = tooltypes[4][2],
 	dig_group = tooltypes[4][3],
 })
