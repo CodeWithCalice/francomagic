@@ -55,86 +55,9 @@ core.register_craftitem("magicalities:focus_fire", {
 	end
 })
 
-if not core.get_modpath("scifi_nodes") then
-	local plants = {
-		{"flower1", "Glow Flower", 1,0, core.LIGHT_MAX},
-		{"flower2", "Pink Flower", 1.5,0, 10},
-		{"flower3", "Triffid", 2,5, 0},
-		{"flower4", "Weeping flower", 1.5,0, 0},
-		{"plant1", "Bulb Plant", 1,0, 0},
-		{"plant2", "Trap Plant", 1.5,0, core.LIGHT_MAX},
-		{"plant3", "Blue Jelly Plant", 1.2,0, 10},
-		{"plant4", "Green Jelly Plant", 1.2,0, 10},
-		{"plant5", "Fern Plant", 1.7,0, 0},
-		{"plant6", "Curly Plant", 1,0, 10},
-		{"plant7", "Egg weed", 1,0, 0},
-		{"plant8", "Slug weed", 1,0, 10},
-		{"plant9", "Prickly Plant", 1,0, 0},
-		{"eyetree", "Eye Tree", 2.5,0, 0},
-	}
-
-	for _, row in ipairs(plants) do
-		local name = row[1]
-		local desc = row[2]
-		local size = row[3]
-		local dmg = row[4]
-		local light = row[5]
-		-- Node Definition
-		core.register_node("magicalities:"..name, {
-			description = desc,
-			tiles = {"scifi_nodes_"..name..".png"},
-			drawtype = "plantlike",
-			inventory_image = "scifi_nodes_"..name..".png",
-			groups = {snappy=1, oddly_breakable_by_hand=1, dig_immediate=3, flora=1},
-			paramtype = "light",
-			visual_scale = size,
-			walkable = false,
-			damage_per_second = dmg,
-			selection_box = {
-			type = "fixed",
-			fixed = {
-				{-0.3, -0.5, -0.3, 0.3, 0.5, 0.3},
-			}
-			},
-			is_ground_content = false,
-			light_source = light,
-			sounds = default.node_sound_leaves_defaults()
-		})
-	end
-end
+-- Les fleurs que le focus fait pousser sont enregistrees dans flowers.lua
 
 -- Earth Focus
-local plants = {
-	{"magicalities:plant1", 0.10},
-	{"magicalities:plant2", 0.10},
-	{"magicalities:plant5", 0.10},
-	{"magicalities:plant6", 0.10},
-	{"magicalities:plant7", 0.10},
-	{"magicalities:plant8", 0.10},
-	{"magicalities:plant9", 0.10},
-	{"magicalities:flower1", 0.25},
-	{"magicalities:flower2", 0.25},
-	{"magicalities:flower3", 0.25},
-	{"magicalities:flower4", 0.25},
-	{"magicalities:eyetree", 0.01}
-}
-
-local function chose_plant()
-	local total = 0
-	for _, plant in ipairs(plants) do
-		total = total + plant[2]
-	end
-	local rand = math.random() * total
-	local sum = 0
-	for _, plant in ipairs(plants) do
-		sum = sum + plant[2]
-		if rand <= sum then
-			return plant[1]
-		end
-	end
-	return plants[#plants][1]
-end
-
 core.register_craftitem("magicalities:focus_earth", {
 	description = "Wand Focus of Earth",
 	groups = {wand_focus = 1},
@@ -169,8 +92,8 @@ core.register_craftitem("magicalities:focus_earth", {
 				return itemstack
 			end
 			mana.set(pname, mana.get(pname) - 1)
-			core.swap_node(pos, {name = "scifi_nodes:grassblk"})
-		elseif node == "scifi_nodes:grassblk" then
+			core.swap_node(pos, {name = "magicalities:grassblk"})
+		elseif node == "magicalities:grassblk" then
 			local above = {x = pos.x, y = pos.y + 1, z = pos.z}
 			if core.is_protected(above, pname) then
 				core.record_protection_violation(above, pname)
@@ -178,13 +101,18 @@ core.register_craftitem("magicalities:focus_earth", {
 			end
 			local node_above = core.get_node(above).name
 			if node_above == "air" then
+				-- Sans mod de plantes installé, on ne consomme rien
+				local plant = magicalities.flowers.random_plant()
+				if not plant then
+					return itemstack
+				end
 				if magicalities.wands.wand_has_contents(itemstack, {earth = 20}) then
 					itemstack = magicalities.wands.wand_take_contents(itemstack, {earth = 20})
 				else
 					return itemstack
 				end
 				mana.set(pname, mana.get(pname) - 10)
-				core.set_node(above, {name = chose_plant()})
+				core.set_node(above, {name = plant, param2 = magicalities.flowers.param2(plant)})
 			end
 		end
 		if core.get_item_group(node, "tree") > 0 then

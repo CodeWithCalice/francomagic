@@ -101,7 +101,7 @@ end
 local enchant_buttons = {
 	fast = "image_button[3.6,0.67;4.75,0.85;bg_btn.png;fast;"..FS("Efficiency").."]",
 	durable = "image_button[3.6,1.65;4.75,1.05;bg_btn.png;durable;"..FS("Durability").."]",
-	sharp = "image_button[3.6,2.8;4.75,0.85;bg_btn.png;sharp;"..FS("Sharpness").."]",
+	sharp = "image_button[3.6,1.65;4.75,0.85;bg_btn.png;sharp;"..FS("Sharpness").."]",
 	reach = "image_button[3.6,2.8;4.75,0.85;bg_btn.png;reach;"..FS("Reach").."]",
 }
 
@@ -373,6 +373,42 @@ local function copy_groupcaps(groupcaps)
 	return result
 end
 
+local NON_INHERITED_FIELDS = {
+	name = true,
+	type = true,
+	mod_origin = true,
+}
+
+local function inherit_tool_def(original_tool, overrides)
+	local def = {}
+
+	for key, value in pairs(original_tool) do
+		if not NON_INHERITED_FIELDS[key] then
+			if type(value) == "table" then
+				def[key] = table.copy(value)
+			else
+				def[key] = value
+			end
+		end
+	end
+
+	for key, value in pairs(overrides) do
+		def[key] = value
+	end
+
+	return def
+end
+
+local function enchanted_toolcaps(original_toolcaps, groupcaps, fleshy)
+	local caps = table.copy(original_toolcaps)
+
+	caps.groupcaps = groupcaps
+	caps.damage_groups = caps.damage_groups or {}
+	caps.damage_groups.fleshy = fleshy
+
+	return caps
+end
+
 function enchanting:register_tool(original_tool_name, def)
 	local original_tool = reg_tools[original_tool_name]
 
@@ -472,30 +508,16 @@ function enchanting:register_tool(original_tool_name, def)
 
 		local normal_tool_name = original_tool.mod_origin .. ":enchanted_" .. original_basename .. "_" .. enchant
 
-		minetest.register_tool(":" .. normal_tool_name, {
+		minetest.register_tool(":" .. normal_tool_name, inherit_tool_def(original_tool, {
 			description = S("Enchanted @1\n@2", original_desc, normal_arg2),
 			short_description = S("Enchanted @1", original_desc),
 			inventory_image = normal_invimg,
-			inventory_overlay = original_tool.inventory_overlay,
 			wield_image = normal_wieldimg,
-			wield_overlay = original_tool.wield_overlay,
-			wield_scale = original_tool.wield_scale,
-			stack_max = original_tool.stack_max,
 			range = normal_range,
-			liquids_pointable = original_tool.liquids_pointable,
-			pointabilities = original_tool.pointabilities,
 			groups = normal_groups,
-
-			tool_capabilities = {
-				groupcaps = normal_groupcaps,
-				damage_groups = {
-					fleshy = normal_fleshy
-				},
-				full_punch_interval = original_toolcaps.full_punch_interval,
-				max_drop_level = original_toolcaps.max_drop_level,
-				punch_attack_uses = original_toolcaps.punch_attack_uses
-			},
-		})
+			tool_capabilities = enchanted_toolcaps(
+				original_toolcaps, normal_groupcaps, normal_fleshy),
+		}))
 
 		if minetest.get_modpath("toolranks") then
 			toolranks.add_tool(normal_tool_name)
@@ -555,30 +577,16 @@ function enchanting:register_tool(original_tool_name, def)
 
 		local powerful_tool_name = original_tool.mod_origin .. ":enchanted_" .. original_basename .. "_" .. enchant .. "_powerful"
 
-		minetest.register_tool(":" .. powerful_tool_name, {
+		minetest.register_tool(":" .. powerful_tool_name, inherit_tool_def(original_tool, {
 			description = S("Enchanted @1\n@2", original_desc, powerful_arg2),
 			short_description = S("Enchanted @1", original_desc),
 			inventory_image = powerful_invimg,
-			inventory_overlay = original_tool.inventory_overlay,
 			wield_image = powerful_wieldimg,
-			wield_overlay = original_tool.wield_overlay,
-			wield_scale = original_tool.wield_scale,
-			stack_max = original_tool.stack_max,
 			range = powerful_range,
-			liquids_pointable = original_tool.liquids_pointable,
-			pointabilities = original_tool.pointabilities,
 			groups = powerful_groups,
-
-			tool_capabilities = {
-				groupcaps = powerful_groupcaps,
-				damage_groups = {
-					fleshy = powerful_fleshy
-				},
-				full_punch_interval = original_toolcaps.full_punch_interval,
-				max_drop_level = original_toolcaps.max_drop_level,
-				punch_attack_uses = original_toolcaps.punch_attack_uses
-			},
-		})
+			tool_capabilities = enchanted_toolcaps(
+				original_toolcaps, powerful_groupcaps, powerful_fleshy),
+		}))
 
 		if minetest.get_modpath("toolranks") then
 			toolranks.add_tool(powerful_tool_name)
@@ -604,9 +612,9 @@ end
 minetest.register_craft({
 	output = "magicalities:enchantment_table",
 	recipe = {
-		{"", "default:book", ""},
-		{"default:diamond", "default:obsidian", "default:diamond"},
-		{"default:obsidian", "default:obsidian", "default:obsidian"}
+		{"", "forgotten_monsters:summon_golem", ""},
+		{"forgotten_monsters:eye_of_the_golem", "everness:blue_crying_obsidian","forgotten_monsters:eye_of_the_golem"},
+		{"everness:blue_crying_obsidian", "everness:blue_crying_obsidian", "everness:blue_crying_obsidian"},
 	}
 })
 

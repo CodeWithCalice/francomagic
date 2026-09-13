@@ -23,6 +23,12 @@ dofile(modpath.."/crystals.lua")
 -- Wands (complet)
 dofile(modpath.."/wands.lua")
 
+-- Nodes repris de scifi_nodes (complet)
+dofile(modpath.."/scifi_nodes.lua")
+
+-- Fleurs magiques (complet)
+dofile(modpath.."/flowers.lua")
+
 -- Wand focuses (complet)
 dofile(modpath.."/focuses.lua")
 

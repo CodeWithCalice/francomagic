@@ -41,7 +41,7 @@ end
 
 xdecor.register_enchantable_tool("add_stuff:lava_sword", {
 	enchants = tooltypes[4][2],
-	dig_group = tooltypes[4][3],
+	dig_group = nil,
 })
 
 xdecor.register_enchantable_tool("everness:pick_illuminating", {

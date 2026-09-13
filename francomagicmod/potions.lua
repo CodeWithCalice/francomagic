@@ -24,7 +24,7 @@ local function transform_block_to_normal(player)
         visual = "mesh",
         mesh = (block_metamorphosis[player:get_player_name()] and block_metamorphosis[player:get_player_name()].mesh) or "character.b3d",
         textures = {(block_metamorphosis[player:get_player_name()] and block_metamorphosis[player:get_player_name()].texture) or "character.png"},
-        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3},
         eye_height = 1.47,
     })
 end
@@ -49,7 +49,7 @@ local function transform_rat_to_normal(player)
         visual_size = {x = 1, y = 1},
         mesh = mesh or "character.b3d",
         textures = {"character.png"},
-        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3},
         eye_height = 1.47,
     })
 end
@@ -59,11 +59,16 @@ local function transform_growler_to_normal(player)
     if not player or not player:is_player() then return end
     local name = player:get_player_name()
 
+    local mesh = "character.b3d"
+    if core.get_modpath("3d_armor") then
+        mesh = "3d_armor_character.b3d"
+    end
+
     player:set_properties({
         visual = "mesh",
-        mesh = "character.b3d",
+        mesh = mesh,
         textures = {(growler_potion_effect[name] and growler_potion_effect[name].texture) or "character.png"},
-        collisionbox = (growler_potion_effect[name] and growler_potion_effect[name].collisionbox) or {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        collisionbox = (growler_potion_effect[name] and growler_potion_effect[name].collisionbox) or {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3},
         eye_height = 1.47,
     })
     -- Enlever la vision nocturne
@@ -81,12 +86,17 @@ end
 -- 2D to player
 local function transform_DD_to_normal(player)
     if not player or not player:is_player() then return end
-    local name = player:get_player_name()
+
+    local mesh = "character.b3d"
+    if core.get_modpath("3d_armor") then
+        mesh = "3d_armor_character.b3d"
+    end
 
     player:set_properties({
         visual = "mesh",
-        mesh = "character.b3d",
-        collisionbox = (DD_potion_effect[name] and DD_potion_effect[name].collisionbox) or {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        mesh = mesh,
+        texture = "character.png",
+        collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3},
         eye_height = 1.47,
     })
 end
@@ -94,19 +104,19 @@ end
 local potions_name_effects = {
     "Elixir de Toph",
     "Elixir de Toph lvl 2",
-    "Potion de Geant",
-    "Potion de Geant lvl 2",
+    "Potion d Uskull",
+    "Potion d Uskull lvl 2",
     "Potion de Skaven",
     "Potion de Skaven lvl 2",
-    "Elixir a Viaire",
-    "Elixir a Viaire lvl 2",
-    "Potion de Dede",
-    "Potion de Dede lvl 2"
+    "Potion de Grogneur",
+    "Potion de Grogneur lvl 2",
+    "Elixir de Dede",
+    "Elixir de Dede lvl 2"
 }
 
 local function RemoveTransformationEffects(player)
     player:set_properties({
-        collisionbox = {-0.45, 0, -0.45, 0.45,  1.7,  0.45},
+        collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3},
         eye_height = 1.47,
     })
     transform_block_to_normal(player)
@@ -215,11 +225,11 @@ end
 
 -- Enregistrement des deux potions
 RegisterPotion(
-    "Potion de Protection",
-    "Potion de Protection lvl 2",
+    "Potion de Pet",
+    "Potion de Pet lvl 2",
     "Protege l'utilisateur des degats",
     "Protege l'utilisateur des degats",
-    {"technic:lead_lump", "xocean:brain_skeleton", "mobs:hairball"},
+    {"technic:lead_dust", "everness:cave_barrel_cactus", "mobs_add:sharkcorpse"},
     "francomagicmod_potion_grey.png",
     damage_protection_effect,
     damage_protection_effect_lv2,
@@ -329,7 +339,7 @@ RegisterPotion(
     "Elixir de Toph lvl 2",
     "Transforme l'utilisateur en bloc de gazon",
     "Transforme l'utilisateur en bloc de gazon",
-    {"default:clay_lump", "default:marram_grass_1", "forgotten_monsters:hungry_sheet"},
+    {"natural_habitat:kniphofia", "magicalities:crystal_earth", "forgotten_monsters:hungry_sheet"},
     "francomagicmod_potion_green.png",
     metamorphosis_effect,
     metamorphosis_effect_lv2,
@@ -420,11 +430,11 @@ local function fast_potion_effect_lv2(user)
 end
 
 RegisterPotion(
-    "Potion de Rapidite",
-    "Potion de Rapidite lvl 2",
+    "Potion Flash",
+    "Potion Flash lvl 2",
     "Augmente la vitesse de déplacement",
     "Augmente la vitesse de déplacement",
-    {"default:mese_crystal", "farming:mint_leaf", "mobs:rabbit_hide"},
+    {"mobs:chicken_feather", "mobs:rabbit_hide", "mobs:hairball"},
     "francomagicmod_potion_magenta.png",
     fast_potion_effect,
     fast_potion_effect_lv2,
@@ -455,11 +465,11 @@ local function mana_potion_effect_lv2(user)
 end
 
 RegisterPotion(
-    "Potion de Mana",
-    "Potion de Mana lvl 2",
+    "Potion Copacamana",
+    "Potion Copacamana lvl 2",
     "Regenere le mana",
     "Regenere le mana",
-    {"everness:pyrite_lump", "farming:coffee_beans", "mobs:honey"},
+    {"everness:globulagus", "everness:blooming_cooksonia", "mobs:honey"},
     "francomagicmod_potion_darkpurple.png",
     mana_potion_effect,
     mana_potion_effect_lv2,
@@ -490,11 +500,11 @@ local function tasty_potion_effect_lv2(user)
 end
 
 RegisterPotion(
-    "Potion de Vie",
-    "Potion de Vie lvl 2",
+    "Potion Ace",
+    "Potion Ace lvl 2",
     "Regenere la vie",
     "Regenere la vie",
-    {"default:iron_lump", "farming:carrot", "mobs:egg"},
+    {"farming:carrot_juice", "farming:pepper_red", "farming:sunflower_oil"},
     "francomagicmod_potion_red.png",
     tasty_potion_effect,
     tasty_potion_effect_lv2,
@@ -570,7 +580,7 @@ RegisterPotion(
     "Potion Thermique lvl 2",
     "Protege de tous les degats de feu",
     "Protege de tous les degats de feu",
-    {"technic:sulfur_lump", "everness:ngrass_2", "mobs:leather"},
+    {"technic:sulfur_lump", "everness:pyrite_lump", "magicalities:crystal_fire"},
     "francomagicmod_potion_yellow.png",
     fire_resist_potion_effect,
     fire_resist_potion_effect_lv2,
@@ -884,7 +894,7 @@ RegisterPotion(
     "Popo d Uskull lvl 2",
     "Boost l'utilisateur",
     "Boost l'utilisateur",
-    {"everness:hammer", "farming:cookie", "mobs_add:elephantcorpse"},
+    {"mobs_add:elephantcorpse", "everness:hammer_sharp", "magicalities:crystal_dark"},
     "francomagicmod_potion_brown.png",
     big_potion_effect_lv1,
     big_potion_effect_lv2,
@@ -1004,7 +1014,7 @@ if core.get_modpath("mobs_animal") then
         "Potion de Skaven lvl 2",
         "Transforme l'utilisateur en rat",
         "Transforme l'utilisateur en rat",
-        {"technic:tin_dust", "flowers:mushroom_red", "mobs:rat_cooked"},
+        {"mobs:rat_cooked", "everness:venus_trap", "everness:baobab_fruit_roasted"},
         "francomagicmod_potion_blue2.png",
         rat_potion_effect_lv1,
         rat_potion_effect_lv2,
@@ -1134,11 +1144,11 @@ end)
 
 if core.get_modpath("forgotten_monsters") then
     RegisterPotion(
-        "Elixir a Viaire",
-        "Elixir a Viaire lvl 2",
+        "Potion de Grogneur",
+        "Potion de Grogneur lvl 2",
         "Transforme l'utilisateur en growler",
         "Transforme l'utilisateur en growler",
-        {"default:diamond", "butterflies:butterfly_white", "growler:growler_meat_raw"},
+        {"forgotten_monsters_add:growler_meat_raw", "moonflower:moonflower_closed", "magicalities:crystal_light"},
         "francomagicmod_potion_cyan.png",
         growler_potion_effect_lv1,
         growler_potion_effect_lv2,
@@ -1223,7 +1233,7 @@ end)
 core.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
     if DD_potion_effect[name] then
-        transform_growler_to_normal(player)
+        transform_DD_to_normal(player)
         DD_potion_effect[name] = nil
     end
 end)
@@ -1233,7 +1243,7 @@ RegisterPotion(
     "Elixir de Dede lvl 2",
     "Transforme l'utilisateur en 2D",
     "Transforme l'utilisateur en 2D",
-    {"farming:cutting_board", "default:paper", "magicalities:crystal_air"},
+    {"farming:hemp_oil", "default:paper", "magicalities:crystal_air"},
     "francomagicmod_potion_gold.png",
     DD_potion_effect_lv1,
     DD_potion_effect_lv2,

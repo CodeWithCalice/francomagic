@@ -204,6 +204,272 @@ local function start_potion_timer(player, potion_name, duration)
 end
 
 local failed_potion_effects = {}
+
+local function fp_state(name)
+    failed_potion_effects[name] = failed_potion_effects[name] or {}
+    return failed_potion_effects[name]
+end
+
+local function fp_get_hunger(name)
+    if not hunger_ng or not hunger_ng.get_hunger_information then
+        return nil
+    end
+    local info = hunger_ng.get_hunger_information(name)
+    if not info or info.invalid or not info.hunger then
+        return nil
+    end
+    return info.hunger.exact
+end
+
+local function fp_get_last_eaten(name)
+    if not hunger_ng or not hunger_ng.get_hunger_information then
+        return nil
+    end
+    local info = hunger_ng.get_hunger_information(name)
+    if not info or info.invalid or not info.timestamps then
+        return nil
+    end
+    return info.timestamps.last_eaten
+end
+
+local function fp_alter_hunger(name, amount, reason)
+    if hunger_ng and hunger_ng.alter_hunger then
+        hunger_ng.alter_hunger(name, amount, reason or "potion ratee")
+        return true
+    end
+    return false
+end
+
+local function fp_widen_box(box, factor)
+    local out = {}
+    for i = 1, 6 do
+        out[i] = (box[i] or 0) * factor
+    end
+    out[2] = box[2] or 0
+    return out
+end
+
+local function fp_hitbox_restore(player, name)
+    local st = failed_potion_effects[name]
+    if not st or not st.hitbox then return end
+    if player and player:is_player() then
+        player:set_properties({
+            collisionbox = st.hitbox.collisionbox,
+            selectionbox = st.hitbox.selectionbox,
+        })
+    end
+    st.hitbox = nil
+end
+
+local function fp_effect_burn(player, name)
+    player:set_hp(math.max(0, player:get_hp() - 15), {
+        type = "set_hp",
+        from = "mod",
+        reason = "francomagicmod:failed_potion",
+    })
+end
+
+local function fp_effect_starve(player, name)
+    if fp_alter_hunger(name, -30, "potion ratee") then
+        fp_msg(name, "Une faim devorante vous saisit ! (-30 satiete)")
+    else
+        player:set_hp(math.max(0, player:get_hp() - 5), {
+            type = "set_hp",
+            from = "mod",
+            reason = "francomagicmod:failed_potion",
+        })
+    end
+end
+
+local FP_SLOW_DURATION = 120
+
+local function fp_slow_apply(player)
+    local phys = player:get_physics_override()
+    local original_speed = phys.speed or 1
+    player:set_physics_override({speed = original_speed / 2})
+    return {original_speed = original_speed}
+end
+
+local function fp_slow_cancel(effect, player)
+    if effect.metadata then
+        player:set_physics_override({
+            speed = effect.metadata.original_speed or 1,
+        })
+    end
+end
+
+if playereffects and playereffects.register_effect_type then
+    playereffects.register_effect_type(
+        "failed_potion_slow",
+        "Vitesse /2",
+        "default_steel_ingot.png",
+        {"speed"},
+        fp_slow_apply,
+        fp_slow_cancel,
+        true,
+        true
+    )
+end
+
+local function fp_effect_slow(player, name)
+    if playereffects and playereffects.apply_effect_type then
+        playereffects.apply_effect_type("failed_potion_slow", FP_SLOW_DURATION, player)
+    else
+        local phys = player:get_physics_override()
+        local original_speed = phys.speed or 1
+        player:set_physics_override({speed = original_speed / 2})
+        core.after(FP_SLOW_DURATION, function()
+            local p = core.get_player_by_name(name)
+            if p then
+                p:set_physics_override({speed = original_speed})
+            end
+        end)
+    end
+    start_potion_timer(player, "Lenteur", FP_SLOW_DURATION)
+end
+
+local function fp_effect_drain_mana(player, name)
+    if mana and mana.set then
+        mana.set(name, 0)
+    end
+end
+
+local FP_HITBOX_FACTOR = 1.125
+local FP_HITBOX_HUNGER_COST = 5
+local FP_HITBOX_FALLBACK = 60
+
+local function fp_effect_bloat(player, name)
+    local st = fp_state(name)
+    local props = player:get_properties()
+
+    if not st.hitbox then
+        st.hitbox = {
+            collisionbox = table.copy(props.collisionbox or {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3}),
+            selectionbox = table.copy(props.selectionbox or {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3}),
+        }
+    end
+
+    player:set_properties({
+        collisionbox = fp_widen_box(st.hitbox.collisionbox, FP_HITBOX_FACTOR),
+        selectionbox = fp_widen_box(st.hitbox.selectionbox, FP_HITBOX_FACTOR),
+    })
+
+    local current = fp_get_hunger(name)
+    if current then
+        st.hitbox.hunger_target = current - FP_HITBOX_HUNGER_COST
+        st.hitbox.fallback = nil
+    else
+        st.hitbox.hunger_target = nil
+        st.hitbox.fallback = FP_HITBOX_FALLBACK
+    end
+end
+
+local FP_POISON_DAMAGE = 2
+
+local function fp_effect_poison(player, name)
+    local st = fp_state(name)
+    st.poison = {damage = FP_POISON_DAMAGE}
+end
+
+local failed_potion_pool = {
+    {label = "Brulure interne", run = fp_effect_burn},
+    {label = "Faim devorante", run = fp_effect_starve},
+    {label = "Lenteur", run = fp_effect_slow},
+    {label = "Mana siphonne", run = fp_effect_drain_mana},
+    {label = "Corps enfle", run = fp_effect_bloat},
+    {label = "Empoisonnement", run = fp_effect_poison},
+}
+
+local fp_global_timer = 0
+core.register_globalstep(function(dtime)
+    fp_global_timer = fp_global_timer + dtime
+    if fp_global_timer < 1 then return end
+    fp_global_timer = 0
+
+    for name, st in pairs(failed_potion_effects) do
+        local player = core.get_player_by_name(name)
+
+        if player then
+            if st.poison then
+                local hp = player:get_hp()
+                if hp <= 0 then
+                    st.poison = nil
+                else
+                    player:set_hp(math.max(0, hp - st.poison.damage), {
+                        type = "set_hp",
+                        from = "mod",
+                        reason = "francomagicmod:failed_potion_poison",
+                    })
+                end
+            end
+
+            if st.hitbox then
+                if st.hitbox.hunger_target then
+                    local hunger = fp_get_hunger(name)
+                    if hunger == nil or hunger <= st.hitbox.hunger_target then
+                        fp_hitbox_restore(player, name)
+                    end
+                else
+                    st.hitbox.fallback = (st.hitbox.fallback or 0) - 1
+                    if st.hitbox.fallback <= 0 then
+                        fp_hitbox_restore(player, name)
+                    end
+                end
+            end
+        end
+
+        if not st.poison and not st.hitbox then
+            failed_potion_effects[name] = nil
+        end
+    end
+end)
+
+local function fp_is_apple(item_name)
+    return type(item_name) == "string" and item_name:lower():find("apple") ~= nil
+end
+
+core.register_on_item_eat(function(hp_change, replace_with_item, itemstack, user, pointed_thing)
+    if not user or not user:is_player() or not itemstack then return end
+
+    local name = user:get_player_name()
+    local st = failed_potion_effects[name]
+    if not st or not st.poison then return end
+    if not fp_is_apple(itemstack:get_name()) then return end
+
+    local before = fp_get_last_eaten(name)
+    core.after(0.3, function()
+        local state = failed_potion_effects[name]
+        if not state or not state.poison then return end
+        local after = fp_get_last_eaten(name)
+        if before == nil or after == nil or after ~= before then
+            state.poison = nil
+        end
+    end)
+end)
+
+do
+    local callbacks = core.registered_on_item_eats
+    if callbacks and #callbacks > 1 then
+        table.insert(callbacks, 1, table.remove(callbacks))
+    end
+end
+
+core.register_on_dieplayer(function(player)
+    local name = player:get_player_name()
+    local st = failed_potion_effects[name]
+    if not st then return end
+    fp_hitbox_restore(player, name)
+    failed_potion_effects[name] = nil
+end)
+
+core.register_on_leaveplayer(function(player)
+    local name = player:get_player_name()
+    local st = failed_potion_effects[name]
+    if not st then return end
+    fp_hitbox_restore(player, name)
+    failed_potion_effects[name] = nil
+end)
+
 core.register_craftitem("francomagicmod:failed_potion", {
     description = "Failed Potion",
     inventory_image = "failed_potion.png",
@@ -213,36 +479,19 @@ core.register_craftitem("francomagicmod:failed_potion", {
         if not user or not user:is_player() then
             return itemstack
         end
+
         local name = user:get_player_name()
         itemstack:take_item()
-        if failed_potion_effects[name] then
-            return itemstack
-        end
+
         local inv = user:get_inventory()
         if inv then
             inv:add_item("main", "vessels:glass_bottle")
         end
-        failed_potion_effects[name] = {
-            ticks_left = 3
-        }
-        local function apply_failed_damage()
-            local effect = failed_potion_effects[name]
-            if not effect then return end
-            local player = core.get_player_by_name(name)
-            if not player then
-                -- Si le joueur n'est plus présent
-                failed_potion_effects[name] = nil
-                return
-            end
-            player:set_hp(player:get_hp() - 3)
-            effect.ticks_left = effect.ticks_left - 1
-            if effect.ticks_left <= 0 then
-                failed_potion_effects[name] = nil
-                return
-            end
-            core.after(1, apply_failed_damage)
-        end
-        core.after(1, apply_failed_damage)
+
+        local chosen = failed_potion_pool[math.random(#failed_potion_pool)]
+        core.log("action", "[francomagicmod] " .. name .. " a bu une potion ratee (effet : " .. chosen.label .. ")")
+        chosen.run(user, name)
+
         return itemstack
     end
 })
@@ -258,7 +507,7 @@ core.register_chatcommand("mlvl", {
             player_magic_level[name] = level
             core.chat_send_player(name, "You are level " .. level .. " in the magic progression.")
         else
-            core.log("error", "Error: Magic level not defined for player " .. name " .")
+            core.log("error", "Error: Magic level not defined for player " .. name .. " .")
             core.chat_send_player(name, "Error: Magic level not defined.")
         end
     end,
