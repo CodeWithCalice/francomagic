@@ -205,6 +205,27 @@ function magicalities.register_crystal(element, description, color, miny, maxy, 
 		is_ground_content = false,
 		sounds = default.node_sound_glass_defaults(),
 
+		can_dig = function(pos, player)
+			if not player or not player:is_player() then
+				return false
+			end
+
+			local player_name = player:get_player_name()
+
+			local level = get_level_witch(player_name)
+			if level < 2 then
+				core.chat_send_player(player_name, "Niveau en magie inférieur à 2.")
+				return false
+			end
+
+			if player:get_wielded_item():get_name() ~= "moreores:pick_silver" then
+				core.chat_send_player(player_name, "Pioche en argent requise.")
+				return false
+			end
+
+			return true
+		end,
+
 		on_rightclick = crystal_rightclick,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
         	local meta = core.get_meta(pos)
