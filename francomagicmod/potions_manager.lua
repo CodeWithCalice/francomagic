@@ -829,10 +829,10 @@ local function cauldron_on_rightclick(pos, node, clicker, itemstack)
         core.chat_send_player(player_name, "Erreur : niveau de magie non défini.")
         return
     end
-    local player_level = player_magic_level[player_name]
+    local get_level_witch = player_magic_level[player_name]
     for _, potion in ipairs(potion_manager.potions) do
         if potion.ingredients and #potion.ingredients > 0 then
-            if player_level >= potion.required_level then
+            if get_level_witch >= potion.required_level then
                 local potion_ingredients = table.concat(potion.ingredients, ",")
                 local ingredient_str = table.concat(ingredients, ",")
                 if potion_ingredients == ingredient_str then
