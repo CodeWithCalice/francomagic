@@ -104,7 +104,7 @@ local recipes = {
 	{
 		input = {
 			{"magicalities:pentablock", "", "magicalities:pentablock"},
-			{"", "francomagicmod:potion_de_vie", ""},
+			{"", "francomagicmod:potion_ace", ""},
 			{"magicalities:pentablock", "", "magicalities:pentablock"},
 		},
 		output = "magicalities:pentagram",
@@ -442,10 +442,11 @@ core.register_craft({
     output = 'magicalities:pentagram',
     recipe = {
     {"magicalities:pentablock", "", "magicalities:pentablock"},
-    {"", "francomagicmod:potion_de_vie", ""},
+    {"", "francomagicmod:potion_ace", ""},
     {"magicalities:pentablock", "", "magicalities:pentablock"},
     }
 })
+
 -- Alambic
 core.register_craft({
     output = 'francomagicmod:alambic',
@@ -511,7 +512,7 @@ core.register_craft({
     output = 'magicalities:edulis_wand',
     recipe = {
 	{"magicalities:crystal_block_light", "magicalities:crystal_block_air", "everness:crystal_tree_large_sapling"},
-	{"magicalities:crystal_block_water", "francomagicmod:berhjay_wand", "magicalities:crystal_block_fire"},
+	{"magicalities:crystal_block_water", "magicalities:berhjay_wand", "magicalities:crystal_block_fire"},
 	{"everness:crystal_tree_large_sapling", "magicalities:crystal_block_earth", "magicalities:crystal_block_dark"},
 	}
 })
@@ -530,9 +531,9 @@ core.register_craft({
 core.register_craft({
     output = 'magicalities:ordinary_ring',
     recipe = {
-	{"moreores:mithril_lump", "francomagicmod:inferior_ring", "moreores:mithril_lump"},
-	{"francomagicmod:inferior_ring", "francomagicmod:inferior_ring", "francomagicmod:inferior_ring"},
-	{"moreores:mithril_lump", "francomagicmod:inferior_ring", "moreores:mithril_lump"},
+	{"moreores:mithril_lump", "magicalities:inferior_ring", "moreores:mithril_lump"},
+	{"magicalities:inferior_ring", "magicalities:inferior_ring", "magicalities:inferior_ring"},
+	{"moreores:mithril_lump", "magicalities:inferior_ring", "moreores:mithril_lump"},
 	}
 })
 
@@ -540,9 +541,9 @@ core.register_craft({
 core.register_craft({
     output = 'magicalities:superior_ring',
     recipe = {
-	{"default:diamond", "francomagicmod:ordinary_ring", "default:diamond"},
-	{"francomagicmod:ordinary_ring", "francomagicmod:ordinary_ring", "francomagicmod:ordinary_ring"},
-	{"default:diamond", "francomagicmod:ordinary_ring", "default:diamond"},
+	{"default:diamond", "magicalities:ordinary_ring", "default:diamond"},
+	{"magicalities:ordinary_ring", "magicalities:ordinary_ring", "magicalities:ordinary_ring"},
+	{"default:diamond", "magicalities:ordinary_ring", "default:diamond"},
 	}
 })
 
@@ -550,8 +551,8 @@ core.register_craft({
 core.register_craft({
     output = 'magicalities:supreme_ring',
     recipe = {
-	{"nyancat:nyancat_rainbow", "francomagicmod:superior_ring", "nyancat:nyancat_rainbow"},
-	{"francomagicmod:superior_ring", "francomagicmod:superior_ring", "francomagicmod:superior_ring"},
-	{"nyancat:nyancat_rainbow", "francomagicmod:superior_ring", "nyancat:nyancat_rainbow"},
+	{"nyancat:nyancat_rainbow", "magicalities:superior_ring", "nyancat:nyancat_rainbow"},
+	{"magicalities:superior_ring", "magicalities:superior_ring", "magicalities:superior_ring"},
+	{"nyancat:nyancat_rainbow", "magicalities:superior_ring", "nyancat:nyancat_rainbow"},
 	}
 })
