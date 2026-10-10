@@ -38,6 +38,31 @@ magicalities.wands.register_wand("edulis", {
 	empty_crystal = false
 })
 
+core.register_allow_player_inventory_action(function(player, action, inventory, info)
+    if action ~= "move" then
+        return
+    end
+
+    if info.to_list ~= "craft" then
+        return
+    end
+
+    local stack = inventory:get_stack(info.from_list, info.from_index)
+	local def = stack:get_definition()
+	local groups = def.groups or {}
+
+	if (groups.wand or 0) <= 0 then
+		return
+	end
+
+	local focus, itemdef = magicalities.wands.get_wand_focus(stack)
+	if focus and itemdef then
+		return 0
+	end
+
+	return
+end)
+
 --------------------------------
 -- Recettes table des arcanes --
 --------------------------------
