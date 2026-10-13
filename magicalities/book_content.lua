@@ -178,7 +178,7 @@ return {
 							text = "Née de l'alliance de l'ingéniosité mécanique et des forces arcaniques, la tronçonache permet d'abattre les plus robustes des arbres d'un seul coup. Son mécanisme enchanté concentre en un instant une puissance qu'aucun bûcheron ne saurait égaler.",
 						},
 						{
-							icon = IMG .. "add_stuff_prismpick.png",
+							icon = IMG .. "pick_illuminating.png",
 							text = "La pioche luminescente apporte au mineur une clarté éphémère dans la confusion des ténèbres.",
 						},
 						{
